@@ -1,73 +1,55 @@
 import TaskModel from "../models/task.model.js";
-
+import moment from "moment"
 export const test = (req, res, next) => {
   res.send("Hello World!");
 };
+// set time and date
 export const setTime = async (req, res, next) => {
-  console.log(req.body.dueDate);
-  var startTime = "";
-  var endTime = "";
-  if (req.body.dueDate.startDate) {
-    startTime = new Date(req.body.dueDate.startDate).toLocaleTimeString();
+  var startDate=new Date(req.body.startDate).toLocaleDateString();
+  var endDate=new Date(req.body.endDate).toLocaleDateString();
+  var startTime = new Date(req.body.startDate).toLocaleTimeString();
+  var endTime =new Date(req.body.endDate).toLocaleTimeString() ;
+  if (req.body.startDate) {
+    req.body.startTime = startTime;
+    req.body.startDate = startDate;
   }
-  if (req.body.dueDate.endDate) {
-    endTime = new Date(req.body.dueDate.endDate).toLocaleTimeString();
-  }
-  req.body.dueDate.startTime = startTime;
-  req.body.dueDate.endTime = endTime;
-
-  console.log(req.body.dueDate);
-  // Your task.
-  // Calculate the duration of the task by using the startDate and endDate.
-  // Determine wether the duration is in min, hours, days.
-  const parseTime = (timeString) => {
-    const [time, period] = timeString.split(" ");
-    let [hours, minutes] = time.split(":");
-    hours = parseInt(hours);
-    minutes = parseInt(minutes);
-    if (period === "PM" && hours !== 12) {
-      hours += 12;
-    } else if (period === "AM" && hours === 12) {
-      hours = 0;
-    }
-    return { hours, minutes };
+  if (req.body.endDate) {
+    req.body.endTime = endTime;
+    req.body.endDate = endDate;
   };
   // Calculate duration and duration type based on start date, end date, start time, and end time
-  console.log("Calculating duration...");
-  if (taskData.dueDate.startDate && taskData.dueDate.endDate && taskData.dueDate.startTime && taskData.dueDate.endTime) {
-    const startDate = new Date(taskData.dueDate.startDate);
-    const endDate = new Date(taskData.dueDate.endDate);
-    const startTime = parseTime(taskData.dueDate.startTime);
-    const endTime = parseTime(taskData.dueDate.endTime);
-    const startDateTime = new Date(startDate);
-    startDateTime.setHours(startTime.hours, startTime.minutes);
-    const endDateTime = new Date(endDate);
-    endDateTime.setHours(endTime.hours, endTime.minutes);
-    const durationMs = endDateTime - startDateTime;
-    // Convert duration to hours
-    const durationHours = durationMs / (1000 * 60 * 60);
-    // Determine duration type based on duration
-    let durationType;
-    if (durationHours < 1) {
-      durationType = "Minutes";
-      taskData.dueDate.duration = durationMs / (1000 * 60); // Duration in minutes
-    } else if (durationHours >= 1 && durationHours < 24) {
-      durationType = "Hours";
-      taskData.dueDate.duration = durationHours; // Duration in hours
-    } else if (durationHours >= 24 && durationHours < (24 * 7)) {
-      durationType = "Days";
-      taskData.dueDate.duration = durationHours / 24; // Duration in days
-    } else if (durationHours >= (24 * 7) && durationHours < (24 * 30)) {
-      durationType = "Weeks";
-      taskData.dueDate.duration = durationHours / (24 * 7); // Duration in weeks
-    } else {
-      durationType = "Months";
-      taskData.dueDate.duration = durationHours / (24 * 30); // Duration in months
-    }
-    taskData.dueDate.durationType = durationType;
+  var startDate = moment(req.body.startDate)
+  var endDate = moment(req.body.endDate)
+  const differenceInMilliseconds = endDate.diff(startDate);
+  var differenceInSeconds =Math.round(differenceInMilliseconds / 1000);
+  var minutes = Math.round(differenceInSeconds / 60);
+  var hours = Math.round(minutes / 60);
+  var days = Math.round(hours / 24);
+  var weeks=Math.round(days/7);
+  var months=Math.round(weeks/12);
+  var years=Math.round(months)
+  if (differenceInSeconds < 60) {
+      req.body.duration = differenceInSeconds
+      req.body.durationType = "seconds"
   }
-  next();
-};
+  else if (differenceInSeconds >= 60 && differenceInSeconds < 3600) {
+      req.body.duration = minutes
+      req.body.durationType = "Minutes"
+  }
+  else if (differenceInSeconds >= 3600 && differenceInSeconds < 86400) {
+      req.body.duration = hours
+      req.body.durationType = "Hours"
+  }
+  else if(differenceInSeconds >= 86400) {
+      req.body.duration = days
+      req.body.durationType = "Days"
+  }
+
+  next()
+  };
+
+ 
+
 
 export const addTask = async (req, res, next) => {
   try {

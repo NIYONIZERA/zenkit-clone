@@ -18,14 +18,14 @@ const TaskSchema = new Schema({
     },
     default: "Todo",
   },
-  dueDate: {
+  
     startDate: {
-      type: Date,
-      required: false,
+      type: String,
+      required: true,
     },
     endDate: {
-      type: Date,
-      required: false,
+      type: String,
+      required: true,
     },
     startTime: {
       type: String,
@@ -43,12 +43,12 @@ const TaskSchema = new Schema({
       type: String,
       required: false,
       enum: {
-        values: ["Minutes", "Hours", "Days", "Weeks", "Months"],
+        values: ["seconds","Minutes", "Hours", "Days", "Weeks", "Months"],
         message: "{VALUE} is not a valid duration type",
       },
-      default: "Days",
+      
     },
-  },
+  
 });
 
 const Task = model("Task", TaskSchema);
